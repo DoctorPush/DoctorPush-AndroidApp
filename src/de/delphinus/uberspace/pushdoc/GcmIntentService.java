@@ -12,6 +12,7 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import de.delphinus.uberspace.pushdoc.util.Util;
@@ -47,6 +48,10 @@ public class GcmIntentService extends IntentService {
 
 			try {
 				String message = extras.getString("message");
+
+				Intent notificationIntent = new Intent("notification");
+				notificationIntent.putExtra("serviceURL", extras.getString("serviceURL"));
+				LocalBroadcastManager.getInstance(this).sendBroadcast(notificationIntent);
 
 				Util.sendNotification(this, "DoctorPush", message);
 			} catch (Exception e) {

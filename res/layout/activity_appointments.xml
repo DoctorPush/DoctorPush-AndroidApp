@@ -18,5 +18,11 @@
 			android:layout_height="wrap_content"
 			android:text="0 Personen warten vor Ihnen"
 			android:fontFamily="sans-serif-light"
-			android:id="@+id/textView" android:layout_gravity="center" android:textSize="20dp"/>
+			android:id="@+id/textView" android:layout_gravity="center" android:textSize="20dp"
+			android:layout_marginBottom="26dp"/>
+
+	<ListView
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/appointmentListView"/>
 </LinearLayout>
