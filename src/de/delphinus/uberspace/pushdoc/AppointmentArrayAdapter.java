@@ -1,15 +1,15 @@
 package de.delphinus.uberspace.pushdoc;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * DoctorPush
@@ -17,16 +17,16 @@ import java.text.SimpleDateFormat;
  * @author Shivan Taher <zn31415926535@gmail.com>
  * @date 26.10.13
  */
-public class AppointmentArrayAdapter extends ArrayAdapter<JSONObject> {
+public class AppointmentArrayAdapter extends ArrayAdapter<Appointment> {
 
 	private final Context context;
-	private final JSONObject[] jsonAppointments;
+	private final ArrayList<Appointment> appointments;
 
-	public AppointmentArrayAdapter(Context context, int textViewResourceId, JSONObject[] objects) {
+	public AppointmentArrayAdapter(Context context, int textViewResourceId, ArrayList<Appointment> objects) {
 		super(context, textViewResourceId, objects);
 
 		this.context = context;
-		this.jsonAppointments = objects;
+		this.appointments = objects;
 	}
 
 	@Override
@@ -36,24 +36,39 @@ public class AppointmentArrayAdapter extends ArrayAdapter<JSONObject> {
 		final TextView nameView = (TextView) rowView.findViewById(R.id.firstLine);
 		final TextView addressView = (TextView) rowView.findViewById(R.id.secondLine);
 
-		try {
-			JSONObject medic = jsonAppointments[position].getJSONObject("medic");
+		nameView.setText(appointments.get(position).getName());
+		addressView.setText(appointments.get(position).getLocaleDate());
 
-			final String name = medic.getString("title") + " " + medic.getString("prename") + " " + medic.getString("name");
-			final String jsonDate = jsonAppointments[position].getString("start");
-
-			SimpleDateFormat parserSDF=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-
-			final String localeDate = parserSDF.parse(jsonDate).toLocaleString();
-
-			nameView.setText(name);
-			addressView.setText(localeDate);
-
-		} catch (Exception e) {
-			Log.i(Config.LOG_TAG, e.toString());
-			e.printStackTrace();
-		}
+//		try {
+//			JSONObject medic = appointments.get(position).getJSONObject("medic");
+//
+//			final String name = medic.getString("title") + " " + medic.getString("prename") + " " + medic.getString("name");
+//			final String jsonDate = appointments.get(position).getString("start");
+//
+//			SimpleDateFormat parserSDF=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+//
+//			final String localeDate = parserSDF.parse(jsonDate).toLocaleString();
+//
+//			nameView.setText(name);
+//			addressView.setText(localeDate);
+//
+//		} catch (Exception e) {
+//			Log.i(Config.LOG_TAG, e.toString());
+//			e.printStackTrace();
+//		}
 
 		return rowView;
+	}
+
+	@Override
+	public void add(Appointment appointment){
+		super.add(appointment);
+
+		Collections.sort(this.appointments, new Comparator<Appointment>() {
+			@Override
+			public int compare(Appointment lhs, Appointment rhs) {
+				return lhs.getDate().before(rhs.getDate()) ? -1  : 1;
+			}
+		});
 	}
 }

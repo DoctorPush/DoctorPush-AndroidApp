@@ -23,16 +23,19 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import de.delphinus.uberspace.pushdoc.Appointment;
 import de.delphinus.uberspace.pushdoc.AppointmentArrayAdapter;
 import de.delphinus.uberspace.pushdoc.Config;
 import de.delphinus.uberspace.pushdoc.R;
 import de.delphinus.uberspace.pushdoc.util.Preferences;
 import de.delphinus.uberspace.pushdoc.util.ServerMessage;
 import de.delphinus.uberspace.pushdoc.util.Util;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 
 /**
@@ -53,7 +56,46 @@ public class MainActivity extends Activity {
 	private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.i(Config.LOG_TAG, "onReceive: "+intent.getExtras().toString());
+
+			String serviceUrl = intent.getExtras().getString("serviceURL");
+
+			Log.i(Config.LOG_TAG, "service url: " + serviceUrl);
+
+			Util.getJSON(serviceUrl, new Handler(new Handler.Callback() {
+				@Override
+				public boolean handleMessage(final Message msg) {
+					Log.i(Config.LOG_TAG, "response status: "+msg.getData().getInt("status"));
+
+					Log.i(Config.LOG_TAG, "response: "+msg.getData().toString());
+
+					try {
+						JSONObject jsonAppointment = new JSONObject(msg.getData().getString("json"));
+
+						JSONObject medic = jsonAppointment.getJSONObject("medic");
+
+						final String name = medic.getString("title") + " " + medic.getString("prename") + " " + medic.getString("name");
+						final String jsonDate = jsonAppointment.getString("start");
+
+						SimpleDateFormat parserSDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+						final Date date = parserSDF.parse(jsonDate);
+						final String localeDate = date.toLocaleString();
+
+						Appointment appointment = new Appointment();
+
+						appointment.setDate(date);
+						appointment.setLocaleDate(localeDate);
+						appointment.setName(name);
+
+						addAppointment(appointment);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					return false;
+
+				}
+			}));
 		}
 	};
 
@@ -207,30 +249,22 @@ public class MainActivity extends Activity {
 
 		ListView listView = (ListView) findViewById(R.id.appointmentListView);
 
-		try {
-			aaa = new AppointmentArrayAdapter(
-					this.getApplicationContext(),
-					android.R.layout.simple_list_item_1,
-					new JSONObject[]{new JSONObject(APPOINTMENT_DATA)}
-			);
 
-			listView.setAdapter(aaa);
+		aaa = new AppointmentArrayAdapter(
+				this.getApplicationContext(),
+				android.R.layout.simple_list_item_1,
+				new ArrayList<Appointment>()
+		);
 
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+		listView.setAdapter(aaa);
 
 		//this.addAppointment();
 
 	}
 
-	private void addAppointment() {
+	private void addAppointment(Appointment appointment) {
 
-		try {
-			aaa.add(new JSONObject(APPOINTMENT_DATA));
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+		aaa.add(appointment);
 
 	}
 
