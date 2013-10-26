@@ -1,0 +1,3 @@
+pushdoc.delphinus.uberspace.de
+
+de.delphinus.uberspace.pushdoc
