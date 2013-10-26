@@ -48,7 +48,8 @@ public class Util {
 				new Notification.Builder(context)
 						.setSmallIcon(R.drawable.ic_launcher)
 						.setContentTitle(title)
-						.setStyle(new Notification.InboxStyle().setBigContentTitle(msg));
+						.setContentText(msg)
+						.setStyle(new Notification.BigTextStyle().bigText(msg));
 
 		mBuilder.setContentIntent(contentIntent);
 
@@ -142,4 +143,5 @@ public class Util {
 		thread.start();
 
 	}
+
 }
