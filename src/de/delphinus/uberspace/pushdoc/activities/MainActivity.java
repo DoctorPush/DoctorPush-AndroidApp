@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -41,7 +42,7 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.main);
+		setContentView(R.layout.activity_appointments);
 		mDisplay = (TextView) findViewById(R.id.display);
 
 		Context context = getApplicationContext();
@@ -78,6 +79,14 @@ public class MainActivity extends Activity {
 		} else {
 			Log.i(Config.LOG_TAG, "No valid Google Play Services APK found.");
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+		return true;
 	}
 
 	@Override
