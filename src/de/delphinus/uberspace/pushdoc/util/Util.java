@@ -38,6 +38,8 @@ public class Util {
 	private static final String PROPERTY_APP_VERSION = "appVersion";
 	private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+	private static int notificationId = 1;
+
 	public static void sendNotification(Context context, String title, String msg) {
 		NotificationManager mNotificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -59,7 +61,7 @@ public class Util {
 		long[] pattern = {0,500,100,0,500,500};
 		mBuilder.setVibrate(pattern);
 
-		mNotificationManager.notify(Config.NOTIFICATION_ID, mBuilder.build());
+		mNotificationManager.notify(Util.notificationId++, mBuilder.build());
 	}
 
 	public static void postJSON(final String url, final String body, final Handler handler) {

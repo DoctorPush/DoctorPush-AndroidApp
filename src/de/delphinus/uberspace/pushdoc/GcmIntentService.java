@@ -43,8 +43,16 @@ public class GcmIntentService extends IntentService {
 			if (!GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType))
 				return;
 
-			Util.sendNotification(this, "DoctorPush", "Received: " + extras.toString());
 			Log.i(Config.LOG_TAG, "Received: " + extras.toString());
+
+			try {
+				String message = extras.getString("message");
+
+				Util.sendNotification(this, "DoctorPush", message);
+			} catch (Exception e) {
+				Log.i(Config.LOG_TAG, "JSON Exception: "+e);
+			}
+
 		}
 
 		GcmBroadcastReceiver.completeWakefulIntent(intent);
