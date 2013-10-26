@@ -11,6 +11,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import de.delphinus.uberspace.pushdoc.Config;
 import de.delphinus.uberspace.pushdoc.R;
 import de.delphinus.uberspace.pushdoc.util.Preferences;
+import de.delphinus.uberspace.pushdoc.util.Util;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,7 +93,6 @@ public class MainActivity extends Activity {
 					msg = "Device registered, registration ID=" + regid;
 
 					Log.i(Config.LOG_TAG, msg);
-					sendRegistrationToBackend();
 
 					Preferences preferences = Preferences.getInstance();
 					preferences.storeRegistrationId(regid);
@@ -104,6 +106,7 @@ public class MainActivity extends Activity {
 			@Override
 			protected void onPostExecute(String msg) {
 				mDisplay.append(msg + "\n");
+				sendRegistrationToBackend();
 			}
 		}.execute(null, null, null);
 	}
@@ -134,24 +137,22 @@ public class MainActivity extends Activity {
 		String action = "/user";
 		String registrationId = preferences.getRegistrationId();
 		String phoneNumber = preferences.getPhoneNumber();
-		String jsonReg = "{androidDeviceID: \""+registrationId+"\", phoneNumber: \""+phoneNumber+"\"}";
+		String jsonReg = "{\"androidDeviceID\": \""+registrationId+"\", \"phoneNumber\": \""+phoneNumber+"\"}";
 
 
-//		Util.postJSON(Config.REST_URL+action, jsonReg, new Handler(new Handler.Callback() {
-//			@Override
-//			public boolean handleMessage(final Message msg) {
-//				Log.i(Config.LOG_TAG, "response: "+msg.toString());
-//
-//				if (msg.getData().getInt("status") == 200) {
-//					final Toast toast = Toast.makeText(MainActivity.this, "success", Toast.LENGTH_LONG);
-//					toast.show();
-//				} else {
-//					final Toast toast = Toast.makeText(MainActivity.this, "failed", Toast.LENGTH_LONG);
-//					toast.show();
-//				}
-//				return false;
-//			}
-//		}));
+		Util.postJSON(Config.REST_URL + action, jsonReg, new Handler(new Handler.Callback() {
+			@Override
+			public boolean handleMessage(final Message msg) {
+				Log.i(Config.LOG_TAG, "response: " + msg.toString());
+
+				if (msg.getData().getInt("status") == 201) {
+					Log.i(Config.LOG_TAG, "success");
+				} else {
+					Log.i(Config.LOG_TAG, "failed");
+				}
+				return false;
+			}
+		}));
 
 	}
 }

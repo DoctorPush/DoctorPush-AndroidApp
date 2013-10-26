@@ -135,6 +135,9 @@ public class Preferences {
 
 	public String getPhoneNumber() {
 		TelephonyManager telephonyManager = (TelephonyManager)this.context.getSystemService(Context.TELEPHONY_SERVICE);
+
+		Log.i(Config.LOG_TAG, "phone number: "+telephonyManager.getLine1Number());
+
 		return telephonyManager.getLine1Number();
 	}
 
