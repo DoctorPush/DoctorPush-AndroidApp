@@ -37,7 +37,7 @@
 		<service android:name="de.delphinus.uberspace.pushdoc.GcmIntentService"/>
 
 		<activity
-				android:name="de.delphinus.uberspace.pushdoc.MyActivity"
+				android:name=".activities.MainActivity"
 				android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>

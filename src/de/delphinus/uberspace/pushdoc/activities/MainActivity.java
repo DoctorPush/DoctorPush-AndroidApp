@@ -1,4 +1,4 @@
-package de.delphinus.uberspace.pushdoc;
+package de.delphinus.uberspace.pushdoc.activities;
 
 /**
  * DoctorPush
@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import de.delphinus.uberspace.pushdoc.Config;
+import de.delphinus.uberspace.pushdoc.R;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Main UI for the demo app.
  */
-public class MyActivity extends Activity {
+public class MainActivity extends Activity {
 
 	public static final String EXTRA_MESSAGE = "message";
 	public static final String PROPERTY_REG_ID = "registration_id";
@@ -67,28 +69,7 @@ public class MyActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// Check device for Play Services APK.
 		checkPlayServices();
-	}
-
-	/**
-	 * Check the device to make sure it has the Google Play Services APK. If
-	 * it doesn't, display a dialog that allows users to download the APK from
-	 * the Google Play Store or enable it in the device's system settings.
-	 */
-	private boolean checkPlayServices() {
-		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-		if (resultCode != ConnectionResult.SUCCESS) {
-			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-				GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-						PLAY_SERVICES_RESOLUTION_REQUEST).show();
-			} else {
-				Log.i(Config.LOG_TAG, "This device is not supported.");
-				finish();
-			}
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -154,22 +135,13 @@ public class MyActivity extends Activity {
 					regid = gcm.register(Config.APP_ID);
 					msg = "Device registered, registration ID=" + regid;
 
-					// You should send the registration ID to your server over HTTP, so it
-					// can use GCM/HTTP or CCS to send messages to your app.
 					sendRegistrationIdToBackend();
 
-					// For this demo: we don't need to send it because the device will send
-					// upstream messages to a server that echo back the message using the
-					// 'from' address in the message.
-
-					// Persist the regID - no need to register again.
 					storeRegistrationId(context, regid);
 				} catch (IOException ex) {
 					msg = "Error :" + ex.getMessage();
-					// If there is an error, don't just keep trying to register.
-					// Require the user to click a button again, or perform
-					// exponential back-off.
 				}
+
 				return msg;
 			}
 
@@ -186,28 +158,7 @@ public class MyActivity extends Activity {
 
 	public void onClick(final View view) {
 
-		new AsyncTask<Void, Void, String>() {
-			@Override
-			protected String doInBackground(Void... params) {
-				String msg = "";
-				try {
-					Bundle data = new Bundle();
-					data.putString("my_message", "Hello World");
-					data.putString("my_action", "com.google.android.gcm.demo.app.ECHO_NOW");
-					String id = Integer.toString(msgId.incrementAndGet());
-					gcm.send(Config.APP_ID + "@gcm.googleapis.com", id, data);
-					msg = "Sent message";
-				} catch (IOException ex) {
-					msg = "Error :" + ex.getMessage();
-				}
-				return msg;
-			}
-
-			@Override
-			protected void onPostExecute(String msg) {
-				mDisplay.append(msg + "\n");
-			}
-		}.execute(null, null, null);
+		Log.i(Config.LOG_TAG, "not implemented yet");
 
 	}
 
@@ -232,10 +183,27 @@ public class MyActivity extends Activity {
 	 * @return Application's {@code SharedPreferences}.
 	 */
 	private SharedPreferences getGcmPreferences(Context context) {
-		// This sample app persists the registration ID in shared preferences, but
-		// how you store the regID in your app is up to you.
-		return getSharedPreferences(MyActivity.class.getSimpleName(),
-				Context.MODE_PRIVATE);
+		return getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+	}
+
+	/**
+	 * Check the device to make sure it has the Google Play Services APK. If
+	 * it doesn't, display a dialog that allows users to download the APK from
+	 * the Google Play Store or enable it in the device's system settings.
+	 */
+	private boolean checkPlayServices() {
+		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if (resultCode != ConnectionResult.SUCCESS) {
+			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+				GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+						MainActivity.PLAY_SERVICES_RESOLUTION_REQUEST).show();
+			} else {
+				Log.i(Config.LOG_TAG, "This device is not supported.");
+				this.finish();
+			}
+			return false;
+		}
+		return true;
 	}
 
 	private void sendRegistrationIdToBackend() {
