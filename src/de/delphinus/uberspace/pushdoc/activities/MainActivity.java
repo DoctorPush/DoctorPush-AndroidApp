@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import de.delphinus.uberspace.pushdoc.Appointment;
 import de.delphinus.uberspace.pushdoc.AppointmentArrayAdapter;
@@ -390,7 +389,7 @@ public class MainActivity extends Activity {
 					if((seconds == 0 && minutes % 5 == 0) || forceUpdateAppointment){
 						firstAppointment.updateLocation(MainActivity.this, mode);
 						forceUpdateAppointment = false;
-						Toast.makeText(getApplicationContext(), mode, Toast.LENGTH_LONG).show();
+						// Toast.makeText(getApplicationContext(), mode, Toast.LENGTH_LONG).show();
 					}
 
 					String timeLeft = String.format("%02d", hours) + ":" +
