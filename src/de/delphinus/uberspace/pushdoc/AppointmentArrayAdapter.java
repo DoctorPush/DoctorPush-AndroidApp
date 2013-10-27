@@ -91,7 +91,7 @@ public class AppointmentArrayAdapter extends ArrayAdapter<Appointment> {
 			if(id == this.appointments.get(i).getId()) {
 				this.appointments.remove(i);
 				this.notifyDataSetChanged();
-				this.storeAppointments();
+				return;
 			}
 		}
 	}

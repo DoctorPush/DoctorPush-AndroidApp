@@ -30,6 +30,7 @@ public class Appointment {
 	private String address;
 	private String jsonData;
 	private int secondsToDrive = 0;
+	private int personsBefore = 0;
 
 	public Appointment() {
 
@@ -91,6 +92,14 @@ public class Appointment {
 		this.id = id;
 	}
 
+	public int getPersonsBefore() {
+		return personsBefore;
+	}
+
+	public void setPersonsBefore(int personsBefore) {
+		this.personsBefore = personsBefore;
+	}
+
 	public void fromJsonData(JSONObject jsonAppointment) {
 		try {
 			JSONObject medic = jsonAppointment.getJSONObject("medic");
@@ -108,6 +117,9 @@ public class Appointment {
 			this.setLocaleDate(localeDate);
 			this.setName(name);
 			this.setAddress(medic.getString("address"));
+
+			//this.setPersonsBefore(medic.getInt("waiting_persons"));
+
 			this.setJsonData(jsonAppointment.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -116,17 +128,19 @@ public class Appointment {
 		}
 	}
 
-	public void updateLocation(Context context) {
+	public void updateLocation(Context context, String mode) {
 		// Get the location manager
 		final LocationManager locationManager = (LocationManager) context
 				.getSystemService(Context.LOCATION_SERVICE);
 
 		// Define the criteria how to select the location provider -> use
 		// default
-		Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(),
-				false));
+		Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(), false));
 
-		String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + location.getLatitude() + "," + location.getLongitude() + "&destination=" + URLEncoder.encode(address) + "&sensor=true&avoid=highways&mode=bicycling";
+		if(location == null || address == null)
+			return;
+
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + location.getLatitude() + "," + location.getLongitude() + "&destination=" + URLEncoder.encode(address) + "&sensor=true&avoid=highways&mode="+mode;
 
 		Log.i(Config.LOG_TAG, "url: " + url);
 

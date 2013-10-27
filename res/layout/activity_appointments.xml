@@ -11,15 +11,23 @@
 			android:fontFamily="sans-serif-light"
 			android:textAlignment="center"
 			android:id="@+id/chronometer" android:layout_gravity="center" android:textSize="90dp"
-			android:text="00:00"/>
+			android:text="00:00" android:layout_marginTop="14dp"/>
 
 	<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="0 Personen warten vor Ihnen"
+			android:text="There are 0 persons waiting before you "
 			android:fontFamily="sans-serif-light"
-			android:id="@+id/personsTextView" android:layout_gravity="center" android:textSize="20dp"
-			android:layout_marginBottom="17dp" android:layout_marginTop="6dp"/>
+			android:id="@+id/personsTextView" android:layout_gravity="center" android:textSize="17dp"
+			android:layout_marginBottom="12dp" android:layout_marginTop="12dp"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/your_appointments"
+			android:id="@+id/yourAppointmentsTextView"
+			android:layout_marginBottom="12dp" android:layout_marginTop="12dp" android:textSize="16dp"
+			android:textColor="#bbbbbb" android:layout_gravity="left" android:layout_marginLeft="16dp"/>
 
 	<ListView
 			android:layout_width="fill_parent"
@@ -31,10 +39,10 @@
 			android:layout_height="wrap_content"
 			android:text="@string/old_appointments"
 			android:id="@+id/oldAppointmentsTextView"
-			android:layout_marginBottom="14dp" android:layout_marginTop="11dp"
-			android:layout_gravity="center_horizontal"/>
+			android:layout_marginBottom="12dp" android:layout_marginTop="12dp"
+			android:textSize="16dp" android:textColor="#bbbbbb" android:layout_marginLeft="16dp"/>
 
-	<ExpandableListView
+	<ListView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/oldAppointmentsListView" android:layout_gravity="center"/>

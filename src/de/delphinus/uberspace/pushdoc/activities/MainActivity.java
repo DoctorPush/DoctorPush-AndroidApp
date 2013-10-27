@@ -18,9 +18,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import de.delphinus.uberspace.pushdoc.Appointment;
 import de.delphinus.uberspace.pushdoc.AppointmentArrayAdapter;
@@ -43,16 +43,16 @@ import java.util.Date;
  */
 public class MainActivity extends Activity {
 
-	// TODO: remove
-
-	private final static String APPOINTMENT_DATA = "{\"id\":4,\"start\":\"2013-10-27T15:00:00.000Z\",\"end\":\"2013-10-27T16:00:00.000Z\",\"patient_id\":1,\"medic_id\":1,\"created_at\":\"2013-10-26T19:35:36.092Z\",\"updated_at\":\"2013-10-26T19:37:47.376Z\",\"patient\":{\"id\":1,\"name\":\"Kann\",\"prename\":\"René\",\"title\":\"\",\"record_id\":\"42\",\"address\":null,\"tel_number\":\"+491604421713\",\"created_at\":\"2013-10-26T15:26:17.994Z\",\"updated_at\":\"2013-10-26T15:26:17.994Z\"},\"medic\":{\"id\":1,\"name\":\"Hofmann\",\"prename\":\"Johann\",\"title\":\"Dr.\",\"created_at\":\"2013-10-26T15:29:22.669Z\",\"updated_at\":\"2013-10-26T15:30:51.815Z\"},\"history\":[{\"id\":12,\"trackable_id\":4,\"trackable_type\":\"Appointment\",\"owner_id\":2,\"owner_type\":\"AdminUser\",\"key\":\"appointment.create\",\"parameters\":{},\"recipient_id\":null,\"recipient_type\":null,\"created_at\":\"2013-10-26T19:35:36.120Z\",\"updated_at\":\"2013-10-26T19:35:36.120Z\",\"owner\":{\"id\":2,\"email\":\"rene@meye.md\",\"created_at\":\"2013-10-26T15:18:18.181Z\",\"updated_at\":\"2013-10-26T20:31:51.944Z\",\"username\":\"meye\",\"name\":\"Meye\",\"prename\":\"René\",\"title\":\"Schwester\"}},{\"id\":13,\"trackable_id\":4,\"trackable_type\":\"Appointment\",\"owner_id\":2,\"owner_type\":\"AdminUser\",\"key\":\"appointment.update\",\"parameters\":{\"start\":\"2013-10-27T15:00:00Z\",\"start_was\":\"2013-10-27T14:00:00Z\",\"end\":\"2013-10-27T16:30:00Z\",\"end_was\":\"2013-10-27T14:30:00Z\"},\"recipient_id\":null,\"recipient_type\":null,\"created_at\":\"2013-10-26T19:37:31.411Z\",\"updated_at\":\"2013-10-26T19:37:31.411Z\",\"owner\":{\"id\":2,\"email\":\"rene@meye.md\",\"created_at\":\"2013-10-26T15:18:18.181Z\",\"updated_at\":\"2013-10-26T20:31:51.944Z\",\"username\":\"meye\",\"name\":\"Meye\",\"prename\":\"René\",\"title\":\"Schwester\"}},{\"id\":14,\"trackable_id\":4,\"trackable_type\":\"Appointment\",\"owner_id\":2,\"owner_type\":\"AdminUser\",\"key\":\"appointment.update\",\"parameters\":{\"end\":\"2013-10-27T16:00:00Z\",\"end_was\":\"2013-10-27T16:30:00Z\"},\"recipient_id\":null,\"recipient_type\":null,\"created_at\":\"2013-10-26T19:37:47.396Z\",\"updated_at\":\"2013-10-26T19:37:47.396Z\",\"owner\":{\"id\":2,\"email\":\"rene@meye.md\",\"created_at\":\"2013-10-26T15:18:18.181Z\",\"updated_at\":\"2013-10-26T20:31:51.944Z\",\"username\":\"meye\",\"name\":\"Meye\",\"prename\":\"René\",\"title\":\"Schwester\"}}]}";
-
 	private GoogleCloudMessaging gcm;
 	private String phoneNumber;
 	private CountDownTimer countDownTimer;
 
 	private AppointmentArrayAdapter aaa;
 	private AppointmentArrayAdapter oldAaa;
+
+	private String mode = "driving";
+
+	boolean forceUpdateAppointment = false;
 
 	private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
 		@Override
@@ -76,27 +76,49 @@ public class MainActivity extends Activity {
 
 						Appointment existentAppointment = aaa.getAppointmentById(appointment.getId());
 
+						boolean isOld = false;
+
+						if(existentAppointment == null) {
+							existentAppointment = oldAaa.getAppointmentById(appointment.getId());
+							isOld = true;
+						}
+
+						TextView personsBeforeTextView = (TextView) findViewById(R.id.personsTextView);
+
+						String state = "There are " + appointment.getPersonsBefore() + " persons waiting before you";
+						personsBeforeTextView.setText(state);
+
 						if(existentAppointment != null) {
 							existentAppointment.fromJsonData(jsonAppointment);
-							aaa.notifyDataSetChanged();
+
+							if(!isOld) {
+								aaa.notifyDataSetChanged();
+							} else {
+								oldAaa.removeAppointment(appointment.getId());
+								aaa.add(appointment);
+
+								aaa.notifyDataSetChanged();
+								oldAaa.notifyDataSetChanged();
+							}
+
 							updateAppointments();
 						} else {
 							addAppointment(appointment);
 							updateAppointments();
+
+							Preferences preferences = Preferences.getInstance();
+
+							ArrayList<String> savedAppointments = preferences.getStringArrayPref(
+									Config.PROPERTY_JSON_APPOINTMENTS
+							);
+
+							if(savedAppointments == null) {
+								savedAppointments = new ArrayList<String>();
+							}
+
+							savedAppointments.add(msg.getData().getString("json"));
+							preferences.setStringArrayPref(Config.PROPERTY_JSON_APPOINTMENTS, savedAppointments);
 						}
-
-						Preferences preferences = Preferences.getInstance();
-
-						ArrayList<String> savedAppointments = preferences.getStringArrayPref(
-								Config.PROPERTY_JSON_APPOINTMENTS
-						);
-
-						if(savedAppointments == null) {
-							savedAppointments = new ArrayList<String>();
-						}
-
-						savedAppointments.add(msg.getData().getString("json"));
-						preferences.setStringArrayPref(Config.PROPERTY_JSON_APPOINTMENTS, savedAppointments);
 
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -153,6 +175,16 @@ public class MainActivity extends Activity {
 		} else {
 			Log.i(Config.LOG_TAG, "No valid Google Play Services APK found.");
 		}
+
+//		TextView chronometerTextView = (TextView) findViewById(R.id.chronometer);
+//		chronometerTextView.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				mode = mode == "driving" ? "walking" : "driving";
+//
+//				forceUpdateAppointment = true;
+//			}
+//		});
 
 		onUserReady();
 	}
@@ -265,7 +297,7 @@ public class MainActivity extends Activity {
 
 		listView.setAdapter(aaa);
 
-		ExpandableListView oldListView = (ExpandableListView) findViewById(R.id.oldAppointmentsListView);
+		ListView oldListView = (ListView) findViewById(R.id.oldAppointmentsListView);
 
 		oldAaa = new AppointmentArrayAdapter(
 				this.getApplicationContext(),
@@ -300,10 +332,23 @@ public class MainActivity extends Activity {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position,
 									final long id) {
 				Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
+
 				intent.putExtra("jsonAppointment", aaa.getAppointments().get(position).getJsonData());
 				startActivity(intent);
 			}
 		});
+
+		oldListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(final AdapterView<?> parent, final View view, final int position,
+									final long id) {
+				Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
+				intent.putExtra("jsonAppointment", oldAaa.getAppointments().get(position).getJsonData());
+				startActivity(intent);
+			}
+		});
+
+		this.updateAppointments();
 
 	}
 
@@ -328,7 +373,7 @@ public class MainActivity extends Activity {
 					Date currentDate = Calendar.getInstance().getTime();
 
 					int secondsToDrive = firstAppointment.getSecondsToDrive() * 1000;
-					long ts = firstAppointment.getDate().getTime() - currentDate.getTime();
+					long ts = firstAppointment.getDate().getTime() - currentDate.getTime() - secondsToDrive;
 
 					if(ts <= 0) {
 						aaa.removeAppointment(firstAppointment.getId());
@@ -342,8 +387,10 @@ public class MainActivity extends Activity {
 					int seconds = (int)(ts / 1000) % 60;
 					minutes %= 60;
 
-					if(seconds == 0 && minutes % 5 == 0){
-						firstAppointment.updateLocation(MainActivity.this);
+					if((seconds == 0 && minutes % 5 == 0) || forceUpdateAppointment){
+						firstAppointment.updateLocation(MainActivity.this, mode);
+						forceUpdateAppointment = false;
+						Toast.makeText(getApplicationContext(), mode, Toast.LENGTH_LONG).show();
 					}
 
 					String timeLeft = String.format("%02d", hours) + ":" +
@@ -365,7 +412,7 @@ public class MainActivity extends Activity {
 	private void addAppointment(Appointment appointment) {
 
 		aaa.add(appointment);
-		appointment.updateLocation(MainActivity.this);
+		appointment.updateLocation(MainActivity.this, mode);
 
 	}
 
