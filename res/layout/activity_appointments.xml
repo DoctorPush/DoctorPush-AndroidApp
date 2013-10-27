@@ -19,7 +19,7 @@
 			android:text="0 Personen warten vor Ihnen"
 			android:fontFamily="sans-serif-light"
 			android:id="@+id/personsTextView" android:layout_gravity="center" android:textSize="20dp"
-			android:layout_marginBottom="26dp"/>
+			android:layout_marginBottom="17dp" android:layout_marginTop="6dp"/>
 
 	<ListView
 			android:layout_width="fill_parent"

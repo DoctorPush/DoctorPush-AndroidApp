@@ -14,9 +14,11 @@ import java.util.Date;
  * @date 27.10.13
  */
 public class Appointment {
+	private int id;
 	private String name;
 	private String localeDate;
 	private Date date;
+	private String address;
 	private String jsonData;
 
 	public Appointment() {
@@ -55,6 +57,22 @@ public class Appointment {
 		this.jsonData = jsonData;
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public void fromJsonData(JSONObject jsonAppointment) {
 		try {
 			JSONObject medic = jsonAppointment.getJSONObject("medic");
@@ -67,9 +85,11 @@ public class Appointment {
 			final Date date = parserSDF.parse(jsonDate);
 			final String localeDate = date.toLocaleString();
 
+			this.setId(jsonAppointment.getInt("id"));
 			this.setDate(date);
 			this.setLocaleDate(localeDate);
 			this.setName(name);
+			this.setAddress(medic.getString("address"));
 			this.setJsonData(jsonAppointment.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();

@@ -39,24 +39,6 @@ public class AppointmentArrayAdapter extends ArrayAdapter<Appointment> {
 		nameView.setText(appointments.get(position).getName());
 		addressView.setText(appointments.get(position).getLocaleDate());
 
-//		try {
-//			JSONObject medic = appointments.get(position).getJSONObject("medic");
-//
-//			final String name = medic.getString("title") + " " + medic.getString("prename") + " " + medic.getString("name");
-//			final String jsonDate = appointments.get(position).getString("start");
-//
-//			SimpleDateFormat parserSDF=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-//
-//			final String localeDate = parserSDF.parse(jsonDate).toLocaleString();
-//
-//			nameView.setText(name);
-//			addressView.setText(localeDate);
-//
-//		} catch (Exception e) {
-//			Log.i(Config.LOG_TAG, e.toString());
-//			e.printStackTrace();
-//		}
-
 		return rowView;
 	}
 
@@ -74,6 +56,15 @@ public class AppointmentArrayAdapter extends ArrayAdapter<Appointment> {
 
 	public ArrayList<Appointment> getAppointments() {
 		return appointments;
+	}
+
+	public Appointment getAppointmentById(final int id) {
+		for(Appointment appointment : this.appointments) {
+			if(id == appointment.getId())
+				return appointment;
+		}
+
+		return null;
 	}
 
 }

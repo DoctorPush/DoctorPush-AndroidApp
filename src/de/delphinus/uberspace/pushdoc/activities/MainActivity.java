@@ -46,7 +46,6 @@ public class MainActivity extends Activity {
 
 	private final static String APPOINTMENT_DATA = "{\"id\":4,\"start\":\"2013-10-27T15:00:00.000Z\",\"end\":\"2013-10-27T16:00:00.000Z\",\"patient_id\":1,\"medic_id\":1,\"created_at\":\"2013-10-26T19:35:36.092Z\",\"updated_at\":\"2013-10-26T19:37:47.376Z\",\"patient\":{\"id\":1,\"name\":\"Kann\",\"prename\":\"René\",\"title\":\"\",\"record_id\":\"42\",\"address\":null,\"tel_number\":\"+491604421713\",\"created_at\":\"2013-10-26T15:26:17.994Z\",\"updated_at\":\"2013-10-26T15:26:17.994Z\"},\"medic\":{\"id\":1,\"name\":\"Hofmann\",\"prename\":\"Johann\",\"title\":\"Dr.\",\"created_at\":\"2013-10-26T15:29:22.669Z\",\"updated_at\":\"2013-10-26T15:30:51.815Z\"},\"history\":[{\"id\":12,\"trackable_id\":4,\"trackable_type\":\"Appointment\",\"owner_id\":2,\"owner_type\":\"AdminUser\",\"key\":\"appointment.create\",\"parameters\":{},\"recipient_id\":null,\"recipient_type\":null,\"created_at\":\"2013-10-26T19:35:36.120Z\",\"updated_at\":\"2013-10-26T19:35:36.120Z\",\"owner\":{\"id\":2,\"email\":\"rene@meye.md\",\"created_at\":\"2013-10-26T15:18:18.181Z\",\"updated_at\":\"2013-10-26T20:31:51.944Z\",\"username\":\"meye\",\"name\":\"Meye\",\"prename\":\"René\",\"title\":\"Schwester\"}},{\"id\":13,\"trackable_id\":4,\"trackable_type\":\"Appointment\",\"owner_id\":2,\"owner_type\":\"AdminUser\",\"key\":\"appointment.update\",\"parameters\":{\"start\":\"2013-10-27T15:00:00Z\",\"start_was\":\"2013-10-27T14:00:00Z\",\"end\":\"2013-10-27T16:30:00Z\",\"end_was\":\"2013-10-27T14:30:00Z\"},\"recipient_id\":null,\"recipient_type\":null,\"created_at\":\"2013-10-26T19:37:31.411Z\",\"updated_at\":\"2013-10-26T19:37:31.411Z\",\"owner\":{\"id\":2,\"email\":\"rene@meye.md\",\"created_at\":\"2013-10-26T15:18:18.181Z\",\"updated_at\":\"2013-10-26T20:31:51.944Z\",\"username\":\"meye\",\"name\":\"Meye\",\"prename\":\"René\",\"title\":\"Schwester\"}},{\"id\":14,\"trackable_id\":4,\"trackable_type\":\"Appointment\",\"owner_id\":2,\"owner_type\":\"AdminUser\",\"key\":\"appointment.update\",\"parameters\":{\"end\":\"2013-10-27T16:00:00Z\",\"end_was\":\"2013-10-27T16:30:00Z\"},\"recipient_id\":null,\"recipient_type\":null,\"created_at\":\"2013-10-26T19:37:47.396Z\",\"updated_at\":\"2013-10-26T19:37:47.396Z\",\"owner\":{\"id\":2,\"email\":\"rene@meye.md\",\"created_at\":\"2013-10-26T15:18:18.181Z\",\"updated_at\":\"2013-10-26T20:31:51.944Z\",\"username\":\"meye\",\"name\":\"Meye\",\"prename\":\"René\",\"title\":\"Schwester\"}}]}";
 
-	private TextView mDisplay;
 	private GoogleCloudMessaging gcm;
 	private String phoneNumber;
 	private CountDownTimer countDownTimer;
@@ -69,8 +68,16 @@ public class MainActivity extends Activity {
 					try {
 						JSONObject jsonAppointment = new JSONObject(msg.getData().getString("json"));
 
+
 						Appointment appointment = new Appointment();
 						appointment.fromJsonData(jsonAppointment);
+
+						Appointment existentAppointment = aaa.getAppointmentById(appointment.getId());
+
+						if(existentAppointment != null) {
+							existentAppointment.fromJsonData(jsonAppointment);
+							aaa.notifyDataSetChanged();
+						}
 
 						addAppointment(appointment);
 
@@ -103,7 +110,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_appointments);
-		mDisplay = (TextView) findViewById(R.id.display);
 
 		Context context = getApplicationContext();
 
@@ -194,7 +200,6 @@ public class MainActivity extends Activity {
 
 			@Override
 			protected void onPostExecute(String msg) {
-				mDisplay.append(msg + "\n");
 				sendRegistrationToBackend();
 			}
 		}.execute(null, null, null);
@@ -282,6 +287,7 @@ public class MainActivity extends Activity {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position,
 									final long id) {
 				Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
+				intent.putExtra("jsonAppointment", aaa.getAppointments().get(position).getJsonData());
 				startActivity(intent);
 			}
 		});
@@ -292,7 +298,7 @@ public class MainActivity extends Activity {
 
 		final TextView chronometer = (TextView) findViewById(R.id.chronometer);
 
-		if(this.countDownTimer == null) {
+		if(this.countDownTimer == null && aaa.getAppointments().size() > 0) {
 			this.countDownTimer = new CountDownTimer(Long.MAX_VALUE, 1000) {
 				public void onTick(long millisUntilFinished) {
 					//chronometer.setText("seconds remaining: " + millisUntilFinished / 1000);

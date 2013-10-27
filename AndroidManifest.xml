@@ -60,9 +60,13 @@
 			</intent-filter>
 		</activity>
 		<activity android:name=".activities.PhoneNumberActivity"/>
-		<activity android:name="de.delphinus.uberspace.pushdoc.activities.DetailActivity"/>
+		<activity android:name="de.delphinus.uberspace.pushdoc.activities.DetailActivity">
+			<meta-data
+					android:name="android.support.PARENT_ACTIVITY"
+					android:value="de.delphinus.uberspace.pushdoc.activities.MainActivity" />
+		</activity>
 		<meta-data
 				android:name="com.google.android.maps.v2.API_KEY"
-				android:value="AIzaSyBe1KVDkXAfPmLhotEDGyG3rVy7PB7y1O8"/>
+				android:value="AIzaSyBe1KVDkXAfPmLhotEDGyG3rVy7PB	7y1O8"/>
 	</application>
 </manifest>
