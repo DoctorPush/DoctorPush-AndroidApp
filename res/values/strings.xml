@@ -21,6 +21,6 @@
 	<string name="clear">Clear</string>
 	<string name="enter_phone_number">Please enter your phone number</string>
 	<string name="submit">Submit</string>
-	<string name="now">Now</string><string name="navigate">Navigate</string>
+	<string name="now">Now</string><string name="navigate">Navigate</string><string name="old_appointments">Old appointments</string>
 
 </resources>

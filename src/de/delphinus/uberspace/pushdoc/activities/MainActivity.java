@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -51,6 +52,7 @@ public class MainActivity extends Activity {
 	private CountDownTimer countDownTimer;
 
 	private AppointmentArrayAdapter aaa;
+	private AppointmentArrayAdapter oldAaa;
 
 	private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
 		@Override
@@ -77,9 +79,11 @@ public class MainActivity extends Activity {
 						if(existentAppointment != null) {
 							existentAppointment.fromJsonData(jsonAppointment);
 							aaa.notifyDataSetChanged();
+							updateAppointments();
+						} else {
+							addAppointment(appointment);
+							updateAppointments();
 						}
-
-						addAppointment(appointment);
 
 						Preferences preferences = Preferences.getInstance();
 
@@ -253,7 +257,6 @@ public class MainActivity extends Activity {
 
 		ListView listView = (ListView) findViewById(R.id.appointmentListView);
 
-
 		aaa = new AppointmentArrayAdapter(
 				this.getApplicationContext(),
 				android.R.layout.simple_list_item_1,
@@ -261,6 +264,16 @@ public class MainActivity extends Activity {
 		);
 
 		listView.setAdapter(aaa);
+
+		ExpandableListView oldListView = (ExpandableListView) findViewById(R.id.oldAppointmentsListView);
+
+		oldAaa = new AppointmentArrayAdapter(
+				this.getApplicationContext(),
+				android.R.layout.simple_list_item_1,
+				new ArrayList<Appointment>()
+		);
+
+		oldListView.setAdapter(oldAaa);
 
 		//
 		// read appointments from shared preferences
@@ -292,6 +305,10 @@ public class MainActivity extends Activity {
 			}
 		});
 
+	}
+
+	private void updateAppointments() {
+
 		//
 		// countdown
 		//
@@ -310,16 +327,24 @@ public class MainActivity extends Activity {
 
 					Date currentDate = Calendar.getInstance().getTime();
 
-					long ts = firstAppointment.getDate().getTime() -  currentDate.getTime();
+					int secondsToDrive = firstAppointment.getSecondsToDrive() * 1000;
+					long ts = firstAppointment.getDate().getTime() - currentDate.getTime();
+
+					if(ts <= 0) {
+						aaa.removeAppointment(firstAppointment.getId());
+						chronometer.setText("00:00:00");
+						oldAaa.add(firstAppointment);
+						return;
+					}
 
 					int minutes = (int)(ts / (60 * 1000));
 					int hours = minutes / 60;
 					int seconds = (int)(ts / 1000) % 60;
 					minutes %= 60;
 
-//					Log.i(Config.LOG_TAG, "time difference: "+String.valueOf(ts));
-//					Log.i(Config.LOG_TAG, "minutes: "+minutes);
-//					Log.i(Config.LOG_TAG, "minutes format: "+String.format("%02d", minutes));
+					if(seconds == 0 && minutes % 5 == 0){
+						firstAppointment.updateLocation(MainActivity.this);
+					}
 
 					String timeLeft = String.format("%02d", hours) + ":" +
 							String.format("%02d", minutes) + ":" +
@@ -334,11 +359,13 @@ public class MainActivity extends Activity {
 				}
 			}.start();
 		}
+
 	}
 
 	private void addAppointment(Appointment appointment) {
 
 		aaa.add(appointment);
+		appointment.updateLocation(MainActivity.this);
 
 	}
 

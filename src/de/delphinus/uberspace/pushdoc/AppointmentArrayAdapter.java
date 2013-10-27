@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import de.delphinus.uberspace.pushdoc.util.Preferences;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,6 +66,34 @@ public class AppointmentArrayAdapter extends ArrayAdapter<Appointment> {
 		}
 
 		return null;
+	}
+
+	public void storeAppointments() {
+
+		Preferences preferences = Preferences.getInstance();
+
+		ArrayList<String> savedAppointments = preferences.getStringArrayPref(
+				Config.PROPERTY_JSON_APPOINTMENTS
+		);
+
+		savedAppointments = new ArrayList<String>();
+
+		for(Appointment appointment : this.appointments) {
+			savedAppointments.add(appointment.getJsonData());
+		}
+
+		preferences.setStringArrayPref(Config.PROPERTY_JSON_APPOINTMENTS, savedAppointments);
+
+	}
+
+	public void removeAppointment(final int id) {
+		for(int i=0; i<this.appointments.size(); i++) {
+			if(id == this.appointments.get(i).getId()) {
+				this.appointments.remove(i);
+				this.notifyDataSetChanged();
+				this.storeAppointments();
+			}
+		}
 	}
 
 }

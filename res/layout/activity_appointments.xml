@@ -25,4 +25,17 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/appointmentListView"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/old_appointments"
+			android:id="@+id/oldAppointmentsTextView"
+			android:layout_marginBottom="14dp" android:layout_marginTop="11dp"
+			android:layout_gravity="center_horizontal"/>
+
+	<ExpandableListView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/oldAppointmentsListView" android:layout_gravity="center"/>
 </LinearLayout>

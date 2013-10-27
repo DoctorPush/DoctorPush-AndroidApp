@@ -1,8 +1,17 @@
 package de.delphinus.uberspace.pushdoc;
 
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import de.delphinus.uberspace.pushdoc.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,6 +29,7 @@ public class Appointment {
 	private Date date;
 	private String address;
 	private String jsonData;
+	private int secondsToDrive = 0;
 
 	public Appointment() {
 
@@ -61,6 +71,14 @@ public class Appointment {
 		return address;
 	}
 
+	public int getSecondsToDrive() {
+		return secondsToDrive;
+	}
+
+	public void setSecondsToDrive(int secondsToDrive) {
+		this.secondsToDrive = secondsToDrive;
+	}
+
 	public void setAddress(String address) {
 		this.address = address;
 	}
@@ -96,5 +114,34 @@ public class Appointment {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void updateLocation(Context context) {
+		// Get the location manager
+		final LocationManager locationManager = (LocationManager) context
+				.getSystemService(Context.LOCATION_SERVICE);
+
+		// Define the criteria how to select the location provider -> use
+		// default
+		Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(),
+				false));
+
+		String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + location.getLatitude() + "," + location.getLongitude() + "&destination=" + URLEncoder.encode(address) + "&sensor=true&avoid=highways&mode=bicycling";
+
+		Log.i(Config.LOG_TAG, "url: " + url);
+
+		Util.getJSON(url,
+				new Handler(new Handler.Callback() {
+					@Override
+					public boolean handleMessage(Message msg) {
+						try {
+							JSONObject json = new JSONObject(msg.getData().getString("json"));
+							secondsToDrive = json.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONObject("duration").getInt("value");
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						return false;
+					}
+				}));
 	}
 }
