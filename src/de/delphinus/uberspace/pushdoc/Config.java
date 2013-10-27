@@ -13,6 +13,7 @@ public class Config {
 
 	public static final String PROPERTY_REG_ID = "registration_id";
 	public static final String PROPERTY_APP_VERSION = "appVersion";
+	public static final String PROPERTY_JSON_APPOINTMENTS = "jsonAppointments";
 	public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	public static final String REST_URL = "http://pushdoc.delphinus.uberspace.de/api";

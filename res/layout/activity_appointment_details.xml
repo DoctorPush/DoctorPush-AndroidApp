@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent">
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Zahnarzt Vorsorge"
+			android:id="@+id/textView1" android:layout_gravity="center" android:textSize="26dp"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="27.10.2013 09:30"
+			android:id="@+id/detailsDateTextView" android:layout_gravity="left|center_vertical"
+			android:textSize="20dp"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Test Street 123"
+			android:id="@+id/textView" android:layout_gravity="center|left" android:textSize="16dp"/>
+
+	<fragment
+			  android:id="@+id/map"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:name="com.google.android.gms.maps.SupportMapFragment"/>
+</LinearLayout>

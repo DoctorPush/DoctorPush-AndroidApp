@@ -71,4 +71,9 @@ public class AppointmentArrayAdapter extends ArrayAdapter<Appointment> {
 			}
 		});
 	}
+
+	public ArrayList<Appointment> getAppointments() {
+		return appointments;
+	}
+
 }
